@@ -35,4 +35,20 @@ export class WalletsController {
             next(error);
         }
     };
+
+    transfer = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.walletsService.transfer(req.body);
+
+            return res.status(200).json({
+                status: "success",
+                message: "Wallet transfer successful",
+                data: result
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    
 }

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { FundWalletDto } from "../dto/fund-wallet.dto";
 import { WalletsRepository } from "../repositories/wallets.repository";
+import { TransferWalletDto } from "../dto/transfer-wallet.dto";
 import { TransactionsRepository } from "../../transactions/repositories/transactions.repository";
 import { AppError } from "../../../shared/errors/app-error";
 import { db } from "../../../database/knex";
@@ -91,4 +92,92 @@ export class WalletsService {
             reference
         };
     }
+
+    async transfer(data: TransferWalletDto) {
+        if (data.senderUserId === data.recipientUserId) {
+            throw new AppError("Cannot transfer funds to the same user", 400);
+        }
+
+        const senderWallet = await this.walletsRepository.findByUserId(
+            data.senderUserId
+        );
+
+        if (!senderWallet) {
+            throw new AppError("Sender wallet not found", 404);
+        }
+
+        const recipientWallet = await this.walletsRepository.findByUserId(
+            data.recipientUserId
+        );
+
+        if (!recipientWallet) {
+            throw new AppError("Recipient wallet not found", 404);
+        }
+
+        const senderCurrentBalance = Number(senderWallet.balance);
+        const recipientCurrentBalance = Number(recipientWallet.balance);
+
+        if (senderCurrentBalance < data.amount) {
+            throw new AppError("Insufficient wallet balance", 400);
+        }
+
+        const senderNewBalance = senderCurrentBalance - data.amount;
+        const recipientNewBalance = recipientCurrentBalance + data.amount;
+
+        const reference = `TRANSFER-${uuidv4()}`;
+
+        await db.transaction(async (trx) => {
+            await this.walletsRepository.updateBalance(
+                senderWallet.id,
+                senderNewBalance,
+                trx
+            );
+
+            await this.walletsRepository.updateBalance(
+                recipientWallet.id,
+                recipientNewBalance,
+                trx
+            );
+
+            await this.transactionsRepository.create(
+                {
+                    id: uuidv4(),
+                    wallet_id: senderWallet.id,
+                    type: "TRANSFER_OUT",
+                    amount: data.amount,
+                    reference: `${reference}-OUT`,
+                    status: "SUCCESS"
+                },
+                trx
+            );
+
+            await this.transactionsRepository.create(
+                {
+                    id: uuidv4(),
+                    wallet_id: recipientWallet.id,
+                    type: "TRANSFER_IN",
+                    amount: data.amount,
+                    reference: `${reference}-IN`,
+                    status: "SUCCESS"
+                },
+                trx
+            );
+        });
+
+        return {
+            reference,
+            amount: data.amount,
+            sender: {
+                walletId: senderWallet.id,
+                previousBalance: senderCurrentBalance,
+                currentBalance: senderNewBalance
+            },
+            recipient: {
+                walletId: recipientWallet.id,
+                previousBalance: recipientCurrentBalance,
+                currentBalance: recipientNewBalance
+            }
+        };
+    }
+
 }
