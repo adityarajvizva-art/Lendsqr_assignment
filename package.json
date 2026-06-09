@@ -8,8 +8,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
-    "migrate": "knex migrate:latest",
-    "rollback": "knex migrate:rollback"
+    "migrate": "knex --knexfile knexfile.ts migrate:latest",
+    "rollback": "knex --knexfile knexfile.ts migrate:rollback",
+    "make:migration": "knex --knexfile knexfile.ts migrate:make"
   },
   "keywords": [],
   "author": "",
