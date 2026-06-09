@@ -21,4 +21,18 @@ export class WalletsController {
             next(error);
         }
     };
+
+    withdraw = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.walletsService.withdraw(req.body);
+
+            return res.status(200).json({
+                status: "success",
+                message: "Wallet withdrawal successful",
+                data: result
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

@@ -1,19 +1,30 @@
+import { Knex } from "knex";
 import { db } from "../../../database/knex";
 
 export class WalletsRepository {
-    async create(wallet: any) {
-        await db("wallets").insert(wallet);
+    async create(wallet: any, trx?: Knex.Transaction) {
+        const query = trx || db;
+
+        await query("wallets").insert(wallet);
     }
 
-    async updateBalance(walletId: string, balance: number) {
-        await db("wallets")
-            .where({ id: walletId })
-            .update({ balance });
-    }
+    async findByUserId(userId: string, trx?: Knex.Transaction) {
+        const query = trx || db;
 
-    async findByUserId(userId: string) {
-        return db("wallets")
+        return query("wallets")
             .where({ user_id: userId })
             .first();
+    }
+
+    async updateBalance(
+        walletId: string,
+        balance: number,
+        trx?: Knex.Transaction
+    ) {
+        const query = trx || db;
+
+        await query("wallets")
+            .where({ id: walletId })
+            .update({ balance });
     }
 }
