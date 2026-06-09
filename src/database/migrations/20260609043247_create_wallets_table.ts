@@ -1,10 +1,23 @@
-import type { Knex } from "knex";
-
+import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
-}
+    await knex.schema.createTable("wallets", (table) => {
+        table.uuid("id").primary();
 
+        table
+            .uuid("user_id")
+            .notNullable()
+            .unique()
+            .references("id")
+            .inTable("users")
+            .onDelete("CASCADE");
+
+        table.decimal("balance", 18, 2).notNullable().defaultTo(0);
+
+        table.timestamps(true, true);
+    });
+}
 
 export async function down(knex: Knex): Promise<void> {
+    await knex.schema.dropTableIfExists("wallets");
 }
-
