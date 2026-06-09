@@ -186,7 +186,7 @@ Money operations are wrapped in database transactions to prevent partial updates
 erDiagram
 
     USERS ||--|| WALLETS : owns
-    WALLETS ||--o TRANSACTIONS : records
+    WALLETS ||--o{ TRANSACTIONS : records
 
     USERS {
         uuid id
@@ -209,12 +209,6 @@ erDiagram
     }
 ```
 
-## Karma Validation
-
-The Adjutor Karma integration has been implemented through a dedicated service layer.
-
-During development, the provided API credentials returned an authorization error for the Karma verification endpoint. The integration code remains in place and can be activated by supplying valid credentials with access to the Karma API.
-
 ## Assumptions
 
 - Each user owns exactly one wallet.
@@ -224,3 +218,10 @@ During development, the provided API credentials returned an authorization error
   - TRANSFER_OUT
   - TRANSFER_IN
 - Wallet operations are wrapped in database transactions to maintain consistency.
+
+
+## Karma Validation
+
+The Adjutor Karma integration has been implemented through a dedicated service layer.
+
+During development, the provided API credentials returned an authorization error for the Karma verification endpoint. The integration code remains in place and can be activated by supplying valid credentials with access to the Karma API.
