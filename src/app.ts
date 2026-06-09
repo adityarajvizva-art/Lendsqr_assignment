@@ -1,4 +1,5 @@
 import express from "express";
+import { usersRoutes } from "./modules/users/routes/users.routes";
 
 const app = express();
 
@@ -10,5 +11,7 @@ app.get("/health", (_req, res) => {
     message: "Demo Credit Wallet API is running"
   });
 });
+
+app.use("/api/v1/users", usersRoutes);
 
 export default app;
