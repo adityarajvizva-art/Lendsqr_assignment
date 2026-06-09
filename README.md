@@ -180,3 +180,47 @@ npm test
 The Karma API integration is implemented. Access depends on using a valid Adjutor API key with permission for the Karma verification endpoint.
 
 Money operations are wrapped in database transactions to prevent partial updates.
+
+
++--------+
+| Users  |
++--------+
+| id     |
+| email  |
+| phone  |
++--------+
+    |
+    | 1:1
+    |
++---------+
+| Wallets |
++---------+
+| id      |
+| user_id |
+| balance |
++---------+
+    |
+    | 1:M
+    |
++--------------+
+| Transactions |
++--------------+
+| id           |
+| wallet_id    |
+| type         |
+| amount       |
+| reference    |
++--------------+
+
+
+
+## Assumptions
+
+- Each user owns exactly one wallet.
+- Wallet balances cannot be negative.
+- Authentication is mocked using a static bearer token.
+- Transfers generate two transaction records:
+  - TRANSFER_OUT
+  - TRANSFER_IN
+- Wallet operations are wrapped in database transactions to maintain consistency.
+
