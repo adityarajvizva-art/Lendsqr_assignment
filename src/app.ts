@@ -1,5 +1,6 @@
 import express from "express";
 import { usersRoutes } from "./modules/users/routes/users.routes";
+import { walletsRoutes } from "./modules/wallets/routes/wallets.routes";
 import { errorHandler } from "./shared/middleware/error-handler";
 
 const app = express();
@@ -14,6 +15,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/wallets", walletsRoutes);
 
 app.use(errorHandler);
 

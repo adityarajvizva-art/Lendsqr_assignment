@@ -1,15 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UsersRepository } from "../repositories/users.repository";
+import { KarmaService } from "../../karma/services/karma.service";
 import { WalletsRepository } from "../../wallets/repositories/wallets.repository";
 import { AppError } from "../../../shared/errors/app-error";
 
 export class UsersService {
     private usersRepository: UsersRepository;
+    private karmaService: KarmaService;
     private walletsRepository: WalletsRepository;
 
     constructor() {
         this.usersRepository = new UsersRepository();
+        this.karmaService = new KarmaService();
         this.walletsRepository = new WalletsRepository();
     }
 
@@ -24,6 +27,12 @@ export class UsersService {
 
         if (phoneExists) {
             throw new AppError("Phone number already exists", 409);
+        }
+
+        const isBlacklisted = await this.karmaService.isBlacklisted(data.email);
+
+        if (isBlacklisted) {
+            throw new AppError("User is blacklisted and cannot be onboarded", 403);
         }
 
         const userId = uuidv4();

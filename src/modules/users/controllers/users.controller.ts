@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { UsersService } from "../services/users.service";
 
 export class UsersController {
@@ -8,13 +8,17 @@ export class UsersController {
         this.usersService = new UsersService();
     }
 
-    create = async (req: Request, res: Response) => {
-        const user = await this.usersService.create(req.body);
+    create = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await this.usersService.create(req.body);
 
-        return res.status(201).json({
-            status: "success",
-            message: "User created successfully",
-            data: user
-        });
+            return res.status(201).json({
+                status: "success",
+                message: "User created successfully",
+                data: user
+            });
+        } catch (error) {
+            next(error);
+        }
     };
 }
