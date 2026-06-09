@@ -26,17 +26,26 @@ export class WalletsService {
         const currentBalance = Number(wallet.balance);
         const newBalance = currentBalance + data.amount;
 
-        await this.walletsRepository.updateBalance(wallet.id, newBalance);
-
         const reference = `FUND-${uuidv4()}`;
 
-        await this.transactionsRepository.create({
-            id: uuidv4(),
-            wallet_id: wallet.id,
-            type: "FUND",
-            amount: data.amount,
-            reference,
-            status: "SUCCESS"
+        await db.transaction(async (trx) => {
+            await this.walletsRepository.updateBalance(
+                wallet.id,
+                newBalance,
+                trx
+            );
+
+            await this.transactionsRepository.create(
+                {
+                    id: uuidv4(),
+                    wallet_id: wallet.id,
+                    type: "FUND",
+                    amount: data.amount,
+                    reference,
+                    status: "SUCCESS"
+                },
+                trx
+            );
         });
 
         return {
