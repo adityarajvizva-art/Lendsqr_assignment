@@ -180,39 +180,40 @@ npm test
 The Karma API integration is implemented. Access depends on using a valid Adjutor API key with permission for the Karma verification endpoint.
 
 Money operations are wrapped in database transactions to prevent partial updates.
+## ER Diagram
 
+```mermaid
+erDiagram
 
-+--------+
-| Users  |
-+--------+
-| id     |
-| email  |
-| phone  |
-+--------+
-    |
-    | 1:1
-    |
-+---------+
-| Wallets |
-+---------+
-| id      |
-| user_id |
-| balance |
-+---------+
-    |
-    | 1:M
-    |
-+--------------+
-| Transactions |
-+--------------+
-| id           |
-| wallet_id    |
-| type         |
-| amount       |
-| reference    |
-+--------------+
+    USERS ||--|| WALLETS : owns
+    WALLETS ||--o TRANSACTIONS : records
 
+    USERS {
+        uuid id
+        string email
+        string phone
+    }
 
+    WALLETS {
+        uuid id
+        uuid user_id
+        decimal balance
+    }
+
+    TRANSACTIONS {
+        uuid id
+        uuid wallet_id
+        string type
+        decimal amount
+        string reference
+    }
+```
+
+## Karma Validation
+
+The Adjutor Karma integration has been implemented through a dedicated service layer.
+
+During development, the provided API credentials returned an authorization error for the Karma verification endpoint. The integration code remains in place and can be activated by supplying valid credentials with access to the Karma API.
 
 ## Assumptions
 
@@ -223,4 +224,3 @@ Money operations are wrapped in database transactions to prevent partial updates
   - TRANSFER_OUT
   - TRANSFER_IN
 - Wallet operations are wrapped in database transactions to maintain consistency.
-
